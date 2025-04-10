@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Reply to Message{% endblock %}
+{% block content %}
+<h2>Reply to Message</h2>
+<div class="card">
+  <div class="card-header">
+    Original Message: {{ original_msg.subject }}
+  </div>
+  <div class="card-body">
+    <p><strong>From:</strong> {{ original_msg.sender }}</p>
+    <p><strong>To:</strong> {{ original_msg.recipient }}</p>
+    <p><strong>Received At:</strong> {{ original_msg.timestamp.strftime("%Y-%m-%d %H:%M") }}</p>
+    <hr>
+    <p>{{ original_msg.body }}</p>
+  </div>
+</div>
+<br>
+<div class="card">
+  <div class="card-header">Compose Reply</div>
+  <div class="card-body">
+    <form method="POST" action="{{ url_for('reply_message', message_id=original_msg.id) }}">
+      <div class="form-group">
+        <label for="message">Your Reply</label>
+        <textarea class="form-control" id="message" name="message" rows="5" placeholder="Enter your reply" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Send Reply</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Inbox{% endblock %}
+{% block content %}
+  <h2>Inbox</h2>
+  {% if messages %}
+    <ul class="list-group">
+      {% for msg in messages %}
+        <li class="list-group-item">
+          <strong>From:</strong> {{ msg.sender }}<br>
+          <strong>Subject:</strong> {{ msg.subject or "(No subject)" }}<br>
+          <small>{{ msg.timestamp.strftime("%Y-%m-%d %H:%M") }}</small><br>
+          <a href="{{ url_for('view_message', message_id=msg.id) }}" class="btn btn-sm btn-info mt-2">View</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No emails in your inbox.</p>
+  {% endif %}
+{% endblock %}

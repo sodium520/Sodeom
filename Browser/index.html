@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Electron Browser</title>
+  <style>
+    /* Base reset and styling */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background-color: #fff; overflow: hidden; }
+
+    /* Tab Bar */
+    #tab-bar {
+      display: flex; align-items: center;
+      background-color: #f1f3f4; height: 40px; padding: 0 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .tab {
+      display: flex; align-items: center;
+      padding: 0 10px; margin-right: 5px; height: 28px;
+      background-color: #e8eaed; border-radius: 5px 5px 0 0;
+      cursor: pointer; font-size: 14px; user-select: none;
+      position: relative;
+    }
+    .tab.active { background-color: #fff; border-bottom: 2px solid #4285F4; }
+    .tab .close-btn { margin-left: 8px; font-weight: bold; cursor: pointer; color: #888; }
+    .tab .close-btn:hover { color: #f00; }
+    #new-tab { font-size: 20px; line-height: 20px; cursor: pointer; padding: 0 10px; color: #4285F4; }
+
+    /* Navigation Bar */
+    #nav {
+      padding: 10px 15px; background-color: #fff; display: flex; align-items: center;
+      border-bottom: 1px solid #ddd; position: relative;
+    }
+    #nav button {
+      background-color: transparent; border: none; cursor: pointer; font-size: 14px;
+      padding: 5px 10px; color: #4285F4; transition: color 0.2s ease;
+    }
+    #nav button:hover { color: #357ae8; }
+    #address {
+      flex-grow: 1; padding: 8px 12px; margin: 0 10px;
+      border: 1px solid #ddd; border-radius: 20px; font-size: 16px; outline: none;
+      transition: border-color 0.2s ease;
+    }
+    #address:focus { border-color: #4285F4; }
+    #go {
+      background-color: #4285F4; color: #fff; border: none; border-radius: 4px;
+      padding: 8px 12px; font-size: 14px; cursor: pointer; transition: background-color 0.2s ease;
+    }
+    #go:hover { background-color: #357ae8; }
+    /* AI Button */
+    #ai-btn {
+      background-color: #fff; color: #4285F4; border: 1px solid #ddd; border-radius: 4px;
+      padding: 8px 12px; font-size: 14px; cursor: pointer; margin-left: 10px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    #ai-btn:hover { background-color: #f1f3f4; color: #357ae8; }
+
+    /* Main content webview container */
+    #content {
+      width: 100%; height: calc(100vh - 80px); position: relative; overflow: hidden;
+    }
+    webview { width: 100%; height: 100%; border: none; }
+
+    /* Sidebar styling */
+    #sidebar {
+      position: fixed; top: 0; right: 0;
+      height: 100%; width: 300px; background-color: #fff;
+      border-left: 1px solid #ddd; box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+      transform: translateX(100%); transition: transform 0.3s ease;
+      z-index: 1000; overflow: hidden;
+    }
+    #sidebar.open { transform: translateX(0); }
+
+    /* Sidebar header */
+    #sidebar-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px; background-color: #f1f3f4; border-bottom: 1px solid #ddd;
+    }
+    #sidebar-close { cursor: pointer; font-size: 16px; font-weight: bold; color: #888; }
+    #sidebar-close:hover { color: #f00; }
+
+    /* Draggable resize handle */
+    #sidebar-resize-handle {
+      position: absolute; left: -5px; top: 0;
+      width: 10px; height: 100%; cursor: ew-resize;
+      background-color: rgba(0,0,0,0.05);
+      z-index: 1010;
+    }
+    /* Sidebar webview */
+    #sidebar-webview {
+      width: 100%; height: calc(100% - 50px); border: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Tab Bar -->
+  <div id="tab-bar">
+    <div class="tab active" data-url="https://sodi.pythonanywhere.com/">
+      <span class="tab-title">Tab 1</span>
+      <span class="close-btn">&times;</span>
+    </div>
+    <div id="new-tab">+</div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <div id="nav">
+    <button id="back">&larr;</button>
+    <button id="forward">&rarr;</button>
+    <button id="reload">&#8635;</button>
+    <input type="text" id="address" placeholder="Enter URL, file path, or search query" />
+    <button id="go">Go</button>
+    <button id="ai-btn">AI</button>
+  </div>
+
+  <!-- Main Webview -->
+  <div id="content">
+    <webview id="webview" src="https://sodi.pythonanywhere.com/" allowpopups></webview>
+  </div>
+
+  <!-- Sidebar with embedded webview loading Copilot -->
+  <div id="sidebar">
+    <!-- Resize handle -->
+    <div id="sidebar-resize-handle"></div>
+    <div id="sidebar-header">
+      <span>Copilot Sidebar</span>
+      <span id="sidebar-close">&times;</span>
+    </div>
+    <webview id="sidebar-webview" src="https://www.meta.ai/" allowpopups></webview>
+  </div>
+
+  <script>
+    // Element references
+    const back = document.getElementById('back');
+    const forward = document.getElementById('forward');
+    const reload = document.getElementById('reload');
+    const go = document.getElementById('go');
+    const address = document.getElementById('address');
+    const aiBtn = document.getElementById('ai-btn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarClose = document.getElementById('sidebar-close');
+    const sidebarResizeHandle = document.getElementById('sidebar-resize-handle');
+    const webview = document.getElementById('webview');
+    const tabBar = document.getElementById('tab-bar');
+    const newTabBtn = document.getElementById('new-tab');
+
+    // Toggle sidebar
+    aiBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+    sidebarClose.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+    });
+
+    // Sidebar resize functionality
+    sidebarResizeHandle.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      document.addEventListener('mousemove', resizeSidebar);
+      document.addEventListener('mouseup', stopResizing);
+    });
+    function resizeSidebar(e) {
+      // New width = window.innerWidth - mouseX (ensure a minimum width)
+      let newWidth = window.innerWidth - e.clientX;
+      newWidth = Math.max(200, Math.min(newWidth, 600));
+      sidebar.style.width = newWidth + 'px';
+    }
+    function stopResizing() {
+      document.removeEventListener('mousemove', resizeSidebar);
+      document.removeEventListener('mouseup', stopResizing);
+    }
+
+    // Helper: validate URL
+    function isUrl(str) {
+      try { new URL(str); return true; }
+      catch (_) { return false; }
+    }
+
+    // Navigation functions for main webview
+    back.addEventListener('click', () => { if (webview.canGoBack()) webview.goBack(); });
+    forward.addEventListener('click', () => { if (webview.canGoForward()) webview.goForward(); });
+    reload.addEventListener('click', () => { webview.reload(); });
+    go.addEventListener('click', () => { navigateTo(address.value.trim()); });
+    address.addEventListener('keydown', (event) => { if (event.key === 'Enter') navigateTo(address.value.trim()); });
+    
+    function navigateTo(input) {
+      let query = input;
+      if (!isUrl(query)) {
+        query = 'https://sodi.pythonanywhere.com/?q=' + encodeURIComponent(query);
+      } else if (!query.startsWith('http://') && !query.startsWith('https://') && !query.startsWith('file://')) {
+        query = 'https://' + query;
+      }
+      const activeTab = document.querySelector('.tab.active');
+      if (activeTab) { activeTab.setAttribute('data-url', query); }
+      address.value = query;
+      webview.loadURL(query);
+    }
+
+    function switchToTab(tabElement) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      tabElement.classList.add('active');
+      const url = tabElement.getAttribute('data-url');
+      address.value = url;
+      webview.loadURL(url);
+    }
+
+    function createNewTab(url) {
+      const tabCount = document.querySelectorAll('.tab').length + 1;
+      const newTab = document.createElement('div');
+      newTab.classList.add('tab');
+      newTab.setAttribute('data-url', url);
+      
+      const titleSpan = document.createElement('span');
+      titleSpan.classList.add('tab-title');
+      titleSpan.innerText = `Tab ${tabCount}`;
+      newTab.appendChild(titleSpan);
+      
+      const closeBtn = document.createElement('span');
+      closeBtn.classList.add('close-btn');
+      closeBtn.innerHTML = '&times;';
+      newTab.appendChild(closeBtn);
+      
+      tabBar.insertBefore(newTab, newTabBtn);
+      switchToTab(newTab);
+    }
+
+    tabBar.addEventListener('click', (e) => {
+      if (e.target.classList.contains('close-btn')) {
+        e.stopPropagation();
+        const tab = e.target.parentElement;
+        closeTab(tab);
+      } else if (e.target.classList.contains('tab') || e.target.parentElement.classList.contains('tab')) {
+        const tab = e.target.classList.contains('tab') ? e.target : e.target.parentElement;
+        switchToTab(tab);
+      }
+    });
+
+    newTabBtn.addEventListener('click', () => { createNewTab('https://sodi.pythonanywhere.com/'); });
+    function closeTab(tab) {
+      if (tab.classList.contains('active')) {
+        const remainingTabs = document.querySelectorAll('.tab');
+        if (remainingTabs.length > 1) {
+          let newActive = tab.previousElementSibling || tab.nextElementSibling;
+          if (newActive && newActive.classList.contains('tab')) { switchToTab(newActive); }
+        }
+      }
+      tab.remove();
+    }
+
+    // Update address bar when main webview navigates
+    webview.addEventListener('did-navigate', (e) => {
+      address.value = e.url;
+      const activeTab = document.querySelector('.tab.active');
+      if (activeTab) { activeTab.setAttribute('data-url', e.url); }
+    });
+    webview.addEventListener('did-navigate-in-page', (e) => {
+      address.value = e.url;
+      const activeTab = document.querySelector('.tab.active');
+      if (activeTab) { activeTab.setAttribute('data-url', e.url); }
+    });
+    webview.addEventListener('will-navigate', (e) => { address.value = e.url; });
+    webview.addEventListener('page-title-updated', (e) => {
+      const activeTab = document.querySelector('.tab.active');
+      if (activeTab) {
+        const titleSpan = activeTab.querySelector('.tab-title');
+        if (titleSpan) { titleSpan.innerText = e.title; }
+      }
+    });
+    // New-window event: open links in a new tab.
+    webview.addEventListener('new-window', (e) => { e.preventDefault(); createNewTab(e.url); });
+  </script>
+</body>
+</html>

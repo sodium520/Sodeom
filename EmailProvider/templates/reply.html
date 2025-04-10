@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Reply Email{% endblock %}
+{% block content %}
+  <h2>Reply to Email</h2>
+  <p>Replying to: <strong>{{ original_msg.sender }}</strong></p>
+  <form method="POST">
+    <div class="form-group">
+      <label for="message">Your Reply</label>
+      <textarea class="form-control" name="message" id="message" rows="5" required></textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Send Reply</button>
+  </form>
+{% endblock %}

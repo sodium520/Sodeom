@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}View Message{% endblock %}
+{% block content %}
+<h2>View Message</h2>
+<div class="card">
+  <div class="card-header">
+    <strong>Subject:</strong> {{ message.subject }}
+  </div>
+  <div class="card-body">
+    <p><strong>From:</strong> {{ message.sender }}</p>
+    <p><strong>To:</strong> {{ message.recipient }}</p>
+    <p><strong>Received At:</strong> {{ message.timestamp.strftime("%Y-%m-%d %H:%M") }}</p>
+    <hr>
+    <p>{{ message.body }}</p>
+  </div>
+  <div class="card-footer">
+    <!-- <a href="{{ url_for('reply_message', message_id=message.id) }}" class="btn btn-secondary">Reply</a> -->
+    <a href="{{ url_for('account_inbox') }}" class="btn btn-primary">Back to Inbox</a>
+  </div>
+</div>
+{% endblock %}

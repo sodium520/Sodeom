@@ -1,0 +1,24 @@
+{
+  "name": "sodi-browser",
+  "productName": "Sodi Browser",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^25.0.0",
+    "electron-builder": "^23.6.0"
+  },
+  "build": {
+    "appId": "com.sodi.sodi-browser",
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  }
+}

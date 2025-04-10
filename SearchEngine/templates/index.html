@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Sodi Search Engine</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .search-header {
+      background: #343a40;
+      padding: 20px 0;
+      color: #fff;
+      text-align: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    /* Centered search container for the initial (no query) state */
+    .search-container.centered {
+      min-height: calc(100vh - 120px);
+      /* 120px accounts for header height */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 120px;
+      /* ensures content doesn't hide behind header */
+    }
+
+    /* Non-centered container for when a query is present */
+    .search-container.not-centered {
+      margin-top: 120px;
+      /* pushes content below the fixed header */
+      padding: 20px 0;
+    }
+
+    .search-form input {
+      height: 50px;
+      font-size: 1.25rem;
+    }
+
+    .results-container {
+      margin-top: 40px;
+    }
+
+    .results-list li a {
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    .results-list li a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Fixed Header -->
+  <header class="search-header">
+    <div class="container">
+      <a href="/app" class="btn btn-outline-light btn-lg">
+        Sodi Search Engine install
+      </a>
+      <p>Search with privacy.</p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  {% if not query %}
+  <!-- When no query, center the search form vertically -->
+  <div class="container search-container centered">
+    <div class="w-100">
+      <form class="search-form" method="GET">
+        <div class="input-group">
+          <input type="text" name="q" class="form-control" placeholder="Enter your search query"
+            value="{{ query or '' }}" required>
+          <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <!-- When a query exists, place the search form at the top -->
+  <div class="container search-container not-centered">
+    <form class="search-form" method="GET">
+      <div class="input-group">
+        <input type="text" name="q" class="form-control" placeholder="Enter your search query" value="{{ query or '' }}"
+          required>
+        <button class="btn btn-primary" type="submit">Search</button>
+      </div>
+    </form>
+  </div>
+  <div class="container results-container">
+    {% if results %}
+    <h2 class="mb-3 text-center">Search Results</h2>
+    <ul class="list-group results-list">
+      {% for result in results %}
+      <li class="list-group-item">
+        <h5><a href="{{ result.link }}">{{ result.title }}</a></h5>
+        <p class="mb-0"><small>{{ result.link }}</small></p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-center text-muted">No results found. Please try a different query.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

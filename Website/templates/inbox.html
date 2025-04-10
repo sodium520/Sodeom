@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Dummy Inbox{% endblock %}
+{% block content %}
+<h2>Dummy Inbox</h2>
+{% if emails %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Sender</th>
+        <th>Subject</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for email in emails %}
+      <tr>
+        <td>{{ email.sender }}</td>
+        <td>{{ email.subject }}</td>
+        <td>{{ email.date }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No emails found.</p>
+{% endif %}
+<a class="btn btn-secondary" href="{{ url_for('index') }}">Back to Home</a>
+{% endblock %}

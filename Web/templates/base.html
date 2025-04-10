@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Sodi - Innovating the Future{% endblock %}</title>
+  <!-- Google Font for company name -->
+  <link href="https://fonts.googleapis.com/css?family=Pacifico&display=swap" rel="stylesheet">
+  <!-- Link to your CSS file -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container header-container">
+      <h1 class="company-name"><a href="{{ url_for('home') }}">Sodi</a></h1>
+      <nav>
+        <ul>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="{{ url_for('services') }}">Services</a></li>
+          <li><a href="https://information-about-me.netlify.app/">Portfolio</a></li>
+          <li><a href="{{ url_for('contact') }}">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  {% block content %}
+  {% endblock %}
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Sodi. All Rights Reserved.</p>
+      <ul class="social">
+        <li><a href="#">Twitter</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">Facebook</a></li>
+      </ul>
+    </div>
+  </footer>
+</body>
+</html>

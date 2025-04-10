@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <!-- Video Player and Details -->
+    <div class="col-md-8">
+      <!-- Video Player -->
+      <div class="embed-responsive embed-responsive-16by9 mb-3">
+        <video class="embed-responsive-item" controls>
+          <source src="{{ url_for('main.media', folder=video.folder, filename=video.filename) }}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <!-- Video Title and Channel Info -->
+      <h3>{{ video.title }}</h3>
+      <div class="d-flex align-items-center mb-3">
+        {% if video.channel and video.channel.logo %}
+          <img src="{{ url_for('main.channel_media', filename=video.channel.logo) }}" alt="Channel Logo" class="rounded-circle mr-3" style="width:48px; height:48px;">
+        {% else %}
+          <img src="{{ url_for('static', filename='placeholder.png') }}" alt="Channel Logo" class="rounded-circle mr-3" style="width:48px; height:48px;">
+        {% endif %}
+        <div>
+          <h5 class="mb-0">{{ video.channel.name if video.channel else 'Unknown Channel' }}</h5>
+          <small class="text-muted">Subscribers: 1M</small>
+        </div>
+      </div>
+
+      <!-- Like Button and Count -->
+      <div class="mb-3">
+        <form action="{{ url_for('main.like_video', video_id=video.id) }}" method="POST" style="display: inline;">
+          <button type="submit" class="btn btn-outline-primary btn-sm">Like</button>
+        </form>
+        <span class="ml-2">Likes: {{ like_count }}</span>
+      </div>
+
+      <!-- Video Description -->
+      <p>{{ video.description }}</p>
+      
+      <!-- Comments Section -->
+      <hr>
+      <div class="mt-3">
+        <h5>Comments</h5>
+        {% for comment in comments %}
+          <div class="mb-2">
+            <p class="mb-1"><strong>Anonymous:</strong> {{ comment.content }}</p>
+            <small class="text-muted">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+          </div>
+        {% else %}
+          <p>No comments yet.</p>
+        {% endfor %}
+        <!-- Comment Form -->
+        <form action="{{ url_for('main.comment_video', video_id=video.id) }}" method="POST" class="mt-3">
+          <div class="form-group">
+            <textarea class="form-control" name="content" rows="2" placeholder="Add a public comment..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Comment</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Up Next Section with Dark Styling -->
+    <div class="col-md-4">
+      <h5 class="text-light">Up Next</h5>
+      {% if up_next_videos %}
+        <div class="list-group bg-dark">
+          {% for vid in up_next_videos %}
+            <a href="{{ url_for('main.play_video', video_id=vid.id) }}" class="list-group-item list-group-item-action bg-dark text-light border-secondary">
+              <div class="d-flex w-100 align-items-center">
+                {% if vid.thumbnail %}
+                  <img src="{{ url_for('main.media', folder=vid.folder, filename=vid.thumbnail) }}" 
+                       alt="Thumb" class="mr-3" style="width:120px; height:67px; object-fit: cover;">
+                {% else %}
+                  <img src="{{ url_for('static', filename='placeholder.png') }}" 
+                       alt="Thumb" class="mr-3" style="width:120px; height:67px; object-fit: cover;">
+                {% endif %}
+                <div>
+                  <h6 class="mb-1">{{ vid.title }}</h6>
+                  <small class="text-muted">{{ vid.channel.name if vid.channel else '' }}</small>
+                </div>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-light">No other videos.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

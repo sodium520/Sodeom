@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="mb-4">Latest Videos</h1>
+  {% if videos %}
+    <div class="row">
+      {% for video in videos %}
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            {% if video.thumbnail %}
+              <img src="{{ url_for('main.media', folder=video.folder, filename=video.thumbnail) }}" 
+                   alt="{{ video.title }}" class="card-img-top img-fluid video-thumbnail">
+            {% else %}
+              <img src="{{ url_for('static', filename='placeholder.png') }}" 
+                   alt="{{ video.title }}" class="card-img-top img-fluid video-thumbnail">
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ video.title }}</h5>
+              <p class="card-text">{{ video.description }}</p>
+            </div>
+            <div class="card-footer text-muted">
+              <small>Uploaded: {{ video.upload_date.strftime('%Y-%m-%d') }}</small><br>
+              <small>Channel: {{ video.channel.name }}</small>
+              <a href="{{ url_for('main.play_video', video_id=video.id) }}" class="btn btn-primary btn-sm float-right">Watch</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No videos have been uploaded yet.</p>
+  {% endif %}
+{% endblock %}

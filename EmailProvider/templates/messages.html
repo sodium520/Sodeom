@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+  <h2>Welcome to Your Email Provider</h2>
+  <p>Please <a href="{{ url_for('login') }}">login</a> or <a href="{{ url_for('register') }}">register</a> to access your email.</p>
+{% endblock %}

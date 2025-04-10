@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+  <h2>Register</h2>
+  <form method="POST">
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input class="form-control" type="text" name="username" id="username" required>
+      <small class="form-text text-muted">
+        Your email will be: <span id="email-preview"></span>
+      </small>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input class="form-control" type="password" name="password" id="password" required>
+    </div>
+    <button class="btn btn-primary" type="submit">Register</button>
+  </form>
+  
+  <script>
+    // Get the username input and email preview span.
+    const usernameInput = document.getElementById('username');
+    const emailPreview = document.getElementById('email-preview');
+    // Domain passed from Flask.
+    const domain = "{{ EMAIL_DOMAIN }}";
+    
+    // Update the preview as the user types.
+    usernameInput.addEventListener('input', function() {
+      const username = usernameInput.value.trim().toLowerCase();
+      emailPreview.textContent = username ? username + "@" + domain : "";
+    });
+  </script>
+{% endblock %}

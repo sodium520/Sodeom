@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Email Sent{% endblock %}
+{% block content %}
+<div class="alert alert-success">
+  <h4>Email Sent Successfully!</h4>
+  <p>Your email to <strong>{{ recipient }}</strong> with the subject <strong>{{ subject }}</strong> has been sent via your localhost SMTP server.</p>
+</div>
+<a class="btn btn-primary" href="{{ url_for('index') }}">Back to Home</a>
+{% endblock %}

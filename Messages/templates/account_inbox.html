@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Inbox{% endblock %}
+{% block content %}
+<h2>Inbox</h2>
+{% if messages %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>From</th>
+        <th>Subject</th>
+        <th>Received At</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for msg in messages %}
+      <tr>
+        <td>{{ msg.sender }}</td>
+        <td>{{ msg.subject }}</td>
+        <td>{{ msg.timestamp.strftime("%Y-%m-%d %H:%M") }}</td>
+        <td>
+          <a href="{{ url_for('view_message', message_id=msg.id) }}" class="btn btn-sm btn-secondary">View</a>
+          <a href="{{ url_for('reply_message', message_id=msg.id) }}" class="btn btn-sm btn-secondary">Reply</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No messages in your inbox.</p>
+{% endif %}
+{% endblock %}
